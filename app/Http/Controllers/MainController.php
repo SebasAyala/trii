@@ -26,17 +26,26 @@ class MainController extends Controller
         // Consumo del API y respuesta
         $client = new \GuzzleHttp\Client();
         $response = $client->request('GET', $url);
+        $data_json = $response->getBody();
+
+        // Encriptación
+        $binary = str_split(base64_encode($data_json));
+        $crypt = '';
+        foreach ($binary as $char) {
+            $crypt = $crypt . chr(ord($char) + 2 > 255 ? ord($char) + 2 - 255 : ord($char) + 2);
+        }
+
         if ($zip) {
             // Creación del archivo
             $zip_file = $zip . '.zip';
             $zip = new \ZipArchive();
             $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-            $zip->addFromString('data.json', $response->getBody());
+            $zip->addFromString('data.json', $crypt);
             $zip->close();
     
             return response()->download($zip_file);
         } else {
-            return response()->json(json_decode($response->getBody()), 200);
+            return response()->json($crypt, 200);
         }
     }
 }
