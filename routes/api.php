@@ -15,3 +15,4 @@ use App\Http\Controllers\MainController;
 */
 
 Route::get('/', [MainController::class, 'index']);
+Route::get('/zip', [MainController::class, 'zip']);
